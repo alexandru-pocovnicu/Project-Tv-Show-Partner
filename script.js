@@ -21,7 +21,7 @@ function makePageForEpisodes(episodeList) {
   episodeCards.forEach(card=>episodeGrid.appendChild(card))
   rootElem.appendChild(episodeGrid);
 
-  const attribution = document.createElement("p");
+  const attribution = document.createElement("footer");
   attribution.className = "attribution";
   attribution.innerHTML =
     'Episode data originally comes from <a href="https://tvmaze.com/" target="_blank" rel="noopener noreferrer">TVMaze.com</a>.';

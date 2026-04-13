@@ -6,11 +6,17 @@ function setup() {
 
 function makePageForEpisodes(episodeList) {
   const rootElem = document.getElementById("root");
-  rootElem.innerHTML = "";
+  let contentDiv = document.getElementById("episodes-content");
+  if (!contentDiv) {
+    contentDiv = document.createElement("div");
+    contentDiv.id = "episodes-content";
+    rootElem.appendChild(contentDiv);
+  }
+  contentDiv.innerHTML = "";
 
   const heading = document.createElement("h1");
   heading.textContent = `All Episodes (${episodeList.length})`;
-  rootElem.appendChild(heading);
+  contentDiv.appendChild(heading);
 
   const episodeGrid = document.createElement("section");
   episodeGrid.className = "episode-grid";
@@ -18,13 +24,13 @@ function makePageForEpisodes(episodeList) {
   let episodeCards = createEpisodeCard(episodeList);
 
   episodeCards.forEach((card) => episodeGrid.appendChild(card));
-  rootElem.appendChild(episodeGrid);
+  contentDiv.appendChild(episodeGrid);
 
   const attribution = document.createElement("footer");
   attribution.id = "attribution";
   attribution.innerHTML =
     'Episode data originally comes from <a href="https://tvmaze.com/" target="_blank" rel="noopener noreferrer">TVMaze.com</a>.';
-  rootElem.appendChild(attribution);
+  contentDiv.appendChild(attribution);
 }
 
 function createEpisodeCard(episodeList) {

@@ -111,38 +111,29 @@ function liveSearch(allEpisodes) {
 
 function selectEpisode(allEpisodes) {
   const episodeSelector = document.getElementById("select-episode");
-  
-  
+
   for (let i = 0; i < allEpisodes.length; i++) {
     let displayEpisode = document.createElement("option");
-    let season=allEpisodes[i].season
-    let episodeNumber=allEpisodes[i].number
-    let title=allEpisodes[i].name
-    let episode=`${formatEpisodeCode(season,episodeNumber)} - ${title}`
-    displayEpisode.textContent=episode
-    displayEpisode.value=allEpisodes[i].id
+    let season = allEpisodes[i].season;
+    let episodeNumber = allEpisodes[i].number;
+    let title = allEpisodes[i].name;
+    let episode = `${formatEpisodeCode(season, episodeNumber)} - ${title}`;
+    displayEpisode.textContent = episode;
+    displayEpisode.value = allEpisodes[i].id;
     episodeSelector.appendChild(displayEpisode);
-    
-    
-    
   }
-  
-  
-  
-  
+
   episodeSelector.addEventListener("change", function () {
-    const selectedValue=episodeSelector.value
+    const selectedValue = episodeSelector.value;
     if (selectedValue === "all-episodes") {
-      const searchInput=document.getElementById("search-input")
-      searchInput.value=""
+      const searchInput = document.getElementById("search-input");
+      searchInput.value = "";
       makePageForEpisodes(allEpisodes);
       return;
     }
-    for(let episode of allEpisodes){
-      
-      if(+selectedValue===episode.id){
-        makePageForEpisodes([episode])
-        
+    for (let episode of allEpisodes) {
+      if (+selectedValue === episode.id) {
+        makePageForEpisodes([episode]);
       }
     }
   });

@@ -72,6 +72,9 @@ function formatEpisodeCode(season, episodeNumber) {
 }
 
 function liveSearch(allEpisodes) {
+  const numberOfEpisodes = allEpisodes.length;
+  let searchLabel = document.getElementById("search-label");
+
   const searchInput = document.getElementById("search-input");
   searchInput.addEventListener("input", function () {
     const searchInputValue = searchInput.value.toLowerCase().trim();
@@ -88,6 +91,8 @@ function liveSearch(allEpisodes) {
         searchResult.push(allEpisodes[i]);
       }
     }
+
+    searchLabel.textContent = `Displaying ${searchResult.length}/${numberOfEpisodes} episodes`;
 
     makePageForEpisodes(searchResult);
   });

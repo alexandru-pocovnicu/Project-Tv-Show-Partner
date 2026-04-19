@@ -42,8 +42,7 @@ async function handleShowChange() {
     const episodes = episodesCache[showId];
     makePageForEpisodes(episodes);
     liveSearch(episodes);
-    selectEpisode(episodes);
-    
+    selectEpisode(episodes);   
     const episodeSelector = document.getElementById("select-episode");
     if (episodeSelector) episodeSelector.value = "all-episodes";
     return;
@@ -78,11 +77,9 @@ function loadEpisodesOnce() {
       if (!response.ok) {
         throw new Error(`Request failed with status ${response.status}`);
       }
-
       return response.json();
     });
   }
-
   return episodesRequestPromise;
 }
 
@@ -170,11 +167,9 @@ function createEpisodeCard(episodeList) {
   episodeList.forEach((episode) => {
     const card = document.createElement("article");
     card.className = "episode-card";
-
     const title = document.createElement("h2");
     const episodeCode = formatEpisodeCode(episode.season, episode.number);
     title.textContent = `${episode.name} - ${episodeCode}`;
-
     const image = document.createElement("img");
     image.src = episode.image?.medium || "";
     image.alt = `${episode.name} (${episodeCode})`;
@@ -233,7 +228,6 @@ function liveSearch(allEpisodes) {
     if (searchLabel) {
       searchLabel.textContent = `Displaying ${searchResult.length}/${numberOfEpisodes} episodes`;
     }
-
     makePageForEpisodes(searchResult);
   });
 }

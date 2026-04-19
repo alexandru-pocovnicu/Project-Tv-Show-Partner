@@ -1,10 +1,35 @@
-//You can edit ALL of the code here
-function setup() {
-  const allEpisodes = getAllEpisodes();
-  makePageForEpisodes(allEpisodes);
+const API_URL = "https://api.tvmaze.com/shows/82/episodes";
 
-  liveSearch(allEpisodes);
-  selectEpisode(allEpisodes);
+//You can edit ALL of the code here
+async function setup() {
+  const rootElem = document.getElementById("root");
+
+  renderStatus(rootElem, "Loading episodes, please wait...");
+
+  try {
+    const response = await fetch(API_URL);
+
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+
+    const allEpisodes = await response.json();
+    makePageForEpisodes(allEpisodes);
+    liveSearch(allEpisodes);
+    selectEpisode(allEpisodes);
+  } catch (error) {
+    renderStatus(
+      rootElem,
+      "Sorry, episodes could not be loaded right now. Please refresh and try again.",
+    );
+  }
+}
+
+function renderStatus(rootElem, message) {
+  rootElem.innerHTML = "";
+  const status = document.createElement("p");
+  status.textContent = message;
+  rootElem.appendChild(status);
 }
 
 function makePageForEpisodes(episodeList) {
@@ -47,7 +72,7 @@ function createEpisodeCard(episodeList) {
     title.textContent = `${episode.name} - ${episodeCode}`;
 
     const image = document.createElement("img");
-    image.src = episode.image.medium;
+    image.src = episode.image?.medium || "";
     image.alt = `${episode.name} (${episodeCode})`;
 
     const episodeMeta = document.createElement("p");
@@ -56,7 +81,7 @@ function createEpisodeCard(episodeList) {
 
     const summary = document.createElement("div");
     summary.className = "episode-summary";
-    summary.innerHTML = episode.summary;
+    summary.innerHTML = episode.summary || "";
 
     card.appendChild(title);
     card.appendChild(image);

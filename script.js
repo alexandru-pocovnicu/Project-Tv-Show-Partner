@@ -4,28 +4,60 @@ const API_URL = "https://api.tvmaze.com/shows/82/episodes";
 const BROKEN_API_URL = "https://api.tvmaze.com/shows/82/episodes-broken";
 const listOfShows = "https://api.tvmaze.com/shows";
 let episodesRequestPromise = null;
+let episodesCache = {}; // showId -> episodes array
 
 //You can edit ALL of the code here
 async function setup() {
-  
-
-  // Always keep controls visible, only update episodes-content/status
   const episodesContentId = "episodes-content";
   let contentDiv = document.getElementById(episodesContentId);
-  await selectShow()
+  await selectShow();
   if (!contentDiv) {
     contentDiv = document.createElement("div");
     contentDiv.id = episodesContentId;
     document.getElementById("root").appendChild(contentDiv);
   }
+  renderStatus(contentDiv, "Select a show to view episodes.");
+
+  const showSelect = document.getElementById("select-show");
+  if (showSelect) {
+    showSelect.addEventListener("change", handleShowChange);
+
+    if (showSelect.options.length > 1) {
+      showSelect.selectedIndex = 1;
+      await handleShowChange();
+    }
+  }
+}
+
+async function handleShowChange() {
+  const showSelect = document.getElementById("select-show");
+  const showId = showSelect.value;
+  const episodesContentId = "episodes-content";
+  let contentDiv = document.getElementById(episodesContentId);
+  if (!showId) return;
   renderStatus(contentDiv, "Loading episodes, please wait...");
 
+  // Check cache first
+  if (episodesCache[showId]) {
+    const episodes = episodesCache[showId];
+    makePageForEpisodes(episodes);
+    liveSearch(episodes);
+    selectEpisode(episodes);
+    return;
+  }
+
   try {
-    const allEpisodes = await loadEpisodesOnce();
-    console.log(allEpisodes);
-    makePageForEpisodes(allEpisodes);
-    liveSearch(allEpisodes);
-    selectEpisode(allEpisodes);
+    const response = await fetch(
+      `https://api.tvmaze.com/shows/${showId}/episodes`,
+    );
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+    const episodes = await response.json();
+    episodesCache[showId] = episodes;
+    makePageForEpisodes(episodes);
+    liveSearch(episodes);
+    selectEpisode(episodes);
   } catch (error) {
     renderStatus(
       contentDiv,
@@ -238,7 +270,7 @@ async function selectShow() {
       throw new Error(`Request failed with status ${response.status}`);
     }
     let shows = await response.json();
-    // Sort shows alphabetically, case-insensitive
+
     shows.sort((a, b) =>
       a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
     );

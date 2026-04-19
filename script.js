@@ -1,21 +1,71 @@
+
+
 const API_URL = "https://api.tvmaze.com/shows/82/episodes";
 const BROKEN_API_URL = "https://api.tvmaze.com/shows/82/episodes-broken";
+const listOfShows = "https://api.tvmaze.com/shows";
 let episodesRequestPromise = null;
+let episodesCache = {}; 
 
-//You can edit ALL of the code here
+
 async function setup() {
-  const rootElem = document.getElementById("root");
+  const episodesContentId = "episodes-content";
+  let contentDiv = document.getElementById(episodesContentId);
+  await selectShow();
+  if (!contentDiv) {
+    contentDiv = document.createElement("div");
+    contentDiv.id = episodesContentId;
+    document.getElementById("root").appendChild(contentDiv);
+  }
+  renderStatus(contentDiv, "Select a show to view episodes.");
 
-  renderStatus(rootElem, "Loading episodes, please wait...");
+  const showSelect = document.getElementById("select-show");
+  if (showSelect) {
+    showSelect.addEventListener("change", handleShowChange);
+
+    if (showSelect.options.length > 1) {
+      showSelect.selectedIndex = 1;
+      await handleShowChange();
+    }
+  }
+}
+
+async function handleShowChange() {
+  const showSelect = document.getElementById("select-show");
+  const showId = showSelect.value;
+  const episodesContentId = "episodes-content";
+  let contentDiv = document.getElementById(episodesContentId);
+  if (!showId) return;
+  renderStatus(contentDiv, "Loading episodes, please wait...");
+
+  // Check cache first
+  if (episodesCache[showId]) {
+    const episodes = episodesCache[showId];
+    makePageForEpisodes(episodes);
+    liveSearch(episodes);
+    selectEpisode(episodes);   
+    const episodeSelector = document.getElementById("select-episode");
+    if (episodeSelector) episodeSelector.value = "all-episodes";
+    return;
+  }
 
   try {
-    const allEpisodes = await loadEpisodesOnce();
-    makePageForEpisodes(allEpisodes);
-    liveSearch(allEpisodes);
-    selectEpisode(allEpisodes);
+    const response = await fetch(
+      `https://api.tvmaze.com/shows/${showId}/episodes`,
+    );
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+    const episodes = await response.json();
+    episodesCache[showId] = episodes;
+    makePageForEpisodes(episodes);
+    liveSearch(episodes);
+    selectEpisode(episodes);
+    
+    const episodeSelector = document.getElementById("select-episode");
+    if (episodeSelector) episodeSelector.value = "all-episodes";
   } catch (error) {
     renderStatus(
-      rootElem,
+      contentDiv,
       "Sorry, episodes could not be loaded right now. Please refresh and try again.",
     );
   }
@@ -27,11 +77,9 @@ function loadEpisodesOnce() {
       if (!response.ok) {
         throw new Error(`Request failed with status ${response.status}`);
       }
-
       return response.json();
     });
   }
-
   return episodesRequestPromise;
 }
 
@@ -41,22 +89,37 @@ function getApiUrlForRequest() {
   return shouldSimulateError ? BROKEN_API_URL : API_URL;
 }
 
-function renderStatus(rootElem, message) {
-  rootElem.innerHTML = "";
+function renderStatus(contentDiv, message) {
+  contentDiv.innerHTML = "";
   const status = document.createElement("p");
   status.textContent = message;
-  rootElem.appendChild(status);
+  contentDiv.appendChild(status);
 }
 
 function makePageForEpisodes(episodeList) {
-  const rootElem = document.getElementById("root");
   let contentDiv = document.getElementById("episodes-content");
   if (!contentDiv) {
     contentDiv = document.createElement("div");
     contentDiv.id = "episodes-content";
-    rootElem.appendChild(contentDiv);
+    document.getElementById("root").appendChild(contentDiv);
   }
   contentDiv.innerHTML = "";
+
+  const episodeSelector = document.getElementById("select-episode");
+  if (episodeSelector) {
+    populateSelect(
+      episodeSelector,
+      episodeList,
+      (ep) => `${formatEpisodeCode(ep.season, ep.number)} - ${ep.name}`,
+      (ep) => ep.id,
+      "Choose an episode",
+    );
+
+    const allOption = document.createElement("option");
+    allOption.value = "all-episodes";
+    allOption.textContent = "All episodes";
+    episodeSelector.insertBefore(allOption, episodeSelector.children[1]);
+  }
 
   const heading = document.createElement("h1");
   heading.textContent = `All Episodes (${episodeList.length})`;
@@ -77,16 +140,36 @@ function makePageForEpisodes(episodeList) {
   contentDiv.appendChild(attribution);
 }
 
+function populateSelect(
+  selectElement,
+  options,
+  getOptionText,
+  getOptionValue,
+  defaultOptionText = "Choose an option",
+) {
+  selectElement.innerHTML = "";
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = defaultOptionText;
+  defaultOption.selected = true;
+  defaultOption.disabled = true;
+  selectElement.appendChild(defaultOption);
+  options.forEach((optionData) => {
+    const option = document.createElement("option");
+    option.value = getOptionValue(optionData);
+    option.textContent = getOptionText(optionData);
+    selectElement.appendChild(option);
+  });
+}
+
 function createEpisodeCard(episodeList) {
   const cards = [];
   episodeList.forEach((episode) => {
     const card = document.createElement("article");
     card.className = "episode-card";
-
     const title = document.createElement("h2");
     const episodeCode = formatEpisodeCode(episode.season, episode.number);
     title.textContent = `${episode.name} - ${episodeCode}`;
-
     const image = document.createElement("img");
     image.src = episode.image?.medium || "";
     image.alt = `${episode.name} (${episodeCode})`;
@@ -145,7 +228,6 @@ function liveSearch(allEpisodes) {
     if (searchLabel) {
       searchLabel.textContent = `Displaying ${searchResult.length}/${numberOfEpisodes} episodes`;
     }
-
     makePageForEpisodes(searchResult);
   });
 }
@@ -180,4 +262,27 @@ function selectEpisode(allEpisodes) {
   });
 }
 
+async function selectShow() {
+  const showSelect = document.getElementById("select-show");
+  try {
+    const response = await fetch(listOfShows);
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+    let shows = await response.json();
+
+    shows.sort((a, b) =>
+      a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
+    );
+    populateSelect(
+      showSelect,
+      shows,
+      (show) => show.name,
+      (show) => show.id,
+      "Choose a show",
+    );
+  } catch (error) {
+    showSelect.innerHTML = "<option>Error loading shows</option>";
+  }
+}
 window.onload = setup;

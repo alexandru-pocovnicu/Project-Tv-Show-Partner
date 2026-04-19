@@ -10,6 +10,12 @@
 
   <body>
     <div id="root">
+      <div id="select-show-drop-down">
+        <label for="select-show">Select show</label>
+        <select id="select-show" name="select-show">
+          <option value="" selected disabled>Choose a show</option>
+        </select>
+      </div>
       <div id="search-controls">
         <label for="search-input">Search episodes</label>
         <input
@@ -20,11 +26,11 @@
         />
         <p id="search-label" aria-live="polite">Displaying 73/73 episodes</p>
       </div>
-      <div id="drop-down">
+      <div id="select-episode-drop-down">
         <label for="select-episode">Select episode</label>
         <select id="select-episode" name="select-episode">
           <option value="" selected disabled>Choose an episode</option>
-          <option value="all-episodes" >All episodes</option>
+          <option value="all-episodes">All episodes</option>
         </select>
       </div>
     </div>

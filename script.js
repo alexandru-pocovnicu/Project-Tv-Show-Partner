@@ -1,3 +1,5 @@
+// Helper to populate a select element with options
+
 const API_URL = "https://api.tvmaze.com/shows/82/episodes";
 const BROKEN_API_URL = "https://api.tvmaze.com/shows/82/episodes-broken";
 let episodesRequestPromise = null;
@@ -64,6 +66,23 @@ function makePageForEpisodes(episodeList) {
   }
   contentDiv.innerHTML = "";
 
+  
+  const episodeSelector = document.getElementById("select-episode");
+  if (episodeSelector) {
+    populateSelect(
+      episodeSelector,
+      episodeList,
+      (ep) => `${formatEpisodeCode(ep.season, ep.number)} - ${ep.name}`,
+      (ep) => ep.id,
+      "Choose an episode",
+    );
+    
+    const allOption = document.createElement("option");
+    allOption.value = "all-episodes";
+    allOption.textContent = "All episodes";
+    episodeSelector.insertBefore(allOption, episodeSelector.children[1]);
+  }
+
   const heading = document.createElement("h1");
   heading.textContent = `All Episodes (${episodeList.length})`;
   contentDiv.appendChild(heading);
@@ -81,6 +100,28 @@ function makePageForEpisodes(episodeList) {
   attribution.innerHTML =
     'Episode data originally comes from <a href="https://tvmaze.com/" target="_blank" rel="noopener noreferrer">TVMaze.com</a>.';
   contentDiv.appendChild(attribution);
+}
+
+function populateSelect(
+  selectElement,
+  options,
+  getOptionText,
+  getOptionValue,
+  defaultOptionText = "Choose an option",
+) {
+  selectElement.innerHTML = "";
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = defaultOptionText;
+  defaultOption.selected = true;
+  defaultOption.disabled = true;
+  selectElement.appendChild(defaultOption);
+  options.forEach((optionData) => {
+    const option = document.createElement("option");
+    option.value = getOptionValue(optionData);
+    option.textContent = getOptionText(optionData);
+    selectElement.appendChild(option);
+  });
 }
 
 function createEpisodeCard(episodeList) {

@@ -1,4 +1,5 @@
 const API_URL = "https://api.tvmaze.com/shows/82/episodes";
+const BROKEN_API_URL = "https://api.tvmaze.com/shows/82/episodes-broken";
 
 //You can edit ALL of the code here
 async function setup() {
@@ -7,7 +8,7 @@ async function setup() {
   renderStatus(rootElem, "Loading episodes, please wait...");
 
   try {
-    const response = await fetch(API_URL);
+    const response = await fetch(getApiUrlForRequest());
 
     if (!response.ok) {
       throw new Error(`Request failed with status ${response.status}`);
@@ -23,6 +24,12 @@ async function setup() {
       "Sorry, episodes could not be loaded right now. Please refresh and try again.",
     );
   }
+}
+
+function getApiUrlForRequest() {
+  const params = new URLSearchParams(window.location.search);
+  const shouldSimulateError = params.get("simulateError") === "true";
+  return shouldSimulateError ? BROKEN_API_URL : API_URL;
 }
 
 function renderStatus(rootElem, message) {

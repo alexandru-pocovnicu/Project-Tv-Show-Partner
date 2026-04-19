@@ -4,18 +4,25 @@ let episodesRequestPromise = null;
 
 //You can edit ALL of the code here
 async function setup() {
-  const rootElem = document.getElementById("root");
-
-  renderStatus(rootElem, "Loading episodes, please wait...");
+  // Always keep controls visible, only update episodes-content/status
+  const episodesContentId = "episodes-content";
+  let contentDiv = document.getElementById(episodesContentId);
+  if (!contentDiv) {
+    contentDiv = document.createElement("div");
+    contentDiv.id = episodesContentId;
+    document.getElementById("root").appendChild(contentDiv);
+  }
+  renderStatus(contentDiv, "Loading episodes, please wait...");
 
   try {
     const allEpisodes = await loadEpisodesOnce();
+    console.log(allEpisodes);
     makePageForEpisodes(allEpisodes);
     liveSearch(allEpisodes);
     selectEpisode(allEpisodes);
   } catch (error) {
     renderStatus(
-      rootElem,
+      contentDiv,
       "Sorry, episodes could not be loaded right now. Please refresh and try again.",
     );
   }
@@ -41,20 +48,19 @@ function getApiUrlForRequest() {
   return shouldSimulateError ? BROKEN_API_URL : API_URL;
 }
 
-function renderStatus(rootElem, message) {
-  rootElem.innerHTML = "";
+function renderStatus(contentDiv, message) {
+  contentDiv.innerHTML = "";
   const status = document.createElement("p");
   status.textContent = message;
-  rootElem.appendChild(status);
+  contentDiv.appendChild(status);
 }
 
 function makePageForEpisodes(episodeList) {
-  const rootElem = document.getElementById("root");
   let contentDiv = document.getElementById("episodes-content");
   if (!contentDiv) {
     contentDiv = document.createElement("div");
     contentDiv.id = "episodes-content";
-    rootElem.appendChild(contentDiv);
+    document.getElementById("root").appendChild(contentDiv);
   }
   contentDiv.innerHTML = "";
 

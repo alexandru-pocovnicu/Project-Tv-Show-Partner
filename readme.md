@@ -9,6 +9,7 @@ This project will take you multiple weeks to complete. As always, we will break 
 ## Goals
 
 There are three primary goals of this project:
+
 1. Get experience building a non-trivial application end-to-end.
 2. Get experience understanding, modifying, and working with code someone else wrote.
 3. Build an impressive application you can demo and show off.
@@ -16,6 +17,7 @@ There are three primary goals of this project:
 Specific learning objectives of the project:
 
 <!--{{<objectives>}}-->
+
 - [ ] Consume structured data in JavaScript using `fetch`.
 - [ ] Build UI components dynamically.
 - [ ] Update a UI dynamically in response to user input.
@@ -85,3 +87,11 @@ After that, you're going to swap codebases with someone else. You should complet
 You are allowed to change anything in your partner's code to make it easier to understand or build on, but they must understand and accept your changes.
 
 Remember, finish each level before you move on to the next. Reach out for help when you're stuck.
+
+## Level 300 Quick Check
+
+Use these checks to verify the API migration behavior:
+
+1. Open `index.html` normally and confirm episodes load on the page.
+2. Refresh and confirm the loading message appears briefly before the episodes list.
+3. Open `index.html?simulateError=true` and confirm a visible error message appears in the page UI.

@@ -151,7 +151,27 @@ async function showEpisodes(showId) {
   }
 }
 
+function setupBackButton() {
+  const backButton = document.getElementById("back-to-shows");
+  if (backButton) {
+    backButton.addEventListener("click", () => {
+      const episodesView = document.getElementById("episodes-view");
+      const showsListingView = document.getElementById("shows-listing-view");
+
+      // Hide episodes view, show shows listing
+      if (episodesView) {
+        episodesView.style.display = "none";
+      }
+      if (showsListingView) {
+        showsListingView.style.display = "block";
+      }
+    });
+  }
+}
+
 async function setup() {
+  setupBackButton();
+
   const episodesContentId = "episodes-content";
   let contentDiv = document.getElementById(episodesContentId);
   await selectShow();

@@ -1,12 +1,9 @@
-
-
 const API_URL = "https://api.tvmaze.com/shows/82/episodes";
 const BROKEN_API_URL = "https://api.tvmaze.com/shows/82/episodes-broken";
 const listOfShows = "https://api.tvmaze.com/shows";
 let episodesRequestPromise = null;
 let episodesCache = {};
 let showsCache = null;
-
 
 async function fetchShows() {
   // Return cached shows if already fetched
@@ -26,6 +23,37 @@ async function fetchShows() {
     console.error("Error fetching shows:", error);
     throw error;
   }
+}
+
+function createShowCard(show) {
+  const card = document.createElement("article");
+  card.className = "show-card";
+
+  const image = document.createElement("img");
+  image.src = show.image?.medium || show.image?.original || "";
+  image.alt = show.name;
+
+  const title = document.createElement("h2");
+  title.textContent = show.name;
+
+  const meta = document.createElement("div");
+  meta.className = "show-meta";
+  const status = show.status ? `Status: ${show.status}` : "";
+  const rating = show.rating?.average ? `Rating: ${show.rating.average}/10` : "";
+  const runtime = show.runtime ? `Runtime: ${show.runtime} min` : "";
+  const genres = show.genres?.length ? `Genres: ${show.genres.join(", ")}` : "";
+  meta.textContent = [status, rating, runtime, genres].filter(Boolean).join(" • ");
+
+  const summary = document.createElement("div");
+  summary.className = "show-summary";
+  summary.innerHTML = show.summary || "No summary available";
+
+  card.appendChild(image);
+  card.appendChild(title);
+  card.appendChild(meta);
+  card.appendChild(summary);
+
+  return card;
 }
 
 async function setup() {
@@ -63,7 +91,7 @@ async function handleShowChange() {
     const episodes = episodesCache[showId];
     makePageForEpisodes(episodes);
     liveSearch(episodes);
-    selectEpisode(episodes);   
+    selectEpisode(episodes);
     const episodeSelector = document.getElementById("select-episode");
     if (episodeSelector) episodeSelector.value = "all-episodes";
     return;
@@ -81,7 +109,7 @@ async function handleShowChange() {
     makePageForEpisodes(episodes);
     liveSearch(episodes);
     selectEpisode(episodes);
-    
+
     const episodeSelector = document.getElementById("select-episode");
     if (episodeSelector) episodeSelector.value = "all-episodes";
   } catch (error) {

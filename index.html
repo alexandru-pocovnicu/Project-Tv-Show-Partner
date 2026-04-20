@@ -24,28 +24,32 @@
         <div id="shows-content"></div>
       </div>
 
-      <div id="select-show-drop-down">
-        <label for="select-show">Select show</label>
-        <select id="select-show" name="select-show">
-          <option value="" selected disabled>Choose a show</option>
-        </select>
-      </div>
-      <div id="search-controls">
-        <label for="search-input">Search episodes</label>
-        <input
-          id="search-input"
-          type="search"
-          placeholder="Search episodes"
-          name="search"
-        />
-        <p id="search-label" aria-live="polite">Displaying 73/73 episodes</p>
-      </div>
-      <div id="select-episode-drop-down">
-        <label for="select-episode">Select episode</label>
-        <select id="select-episode" name="select-episode">
-          <option value="" selected disabled>Choose an episode</option>
-          <option value="all-episodes">All episodes</option>
-        </select>
+      <!-- Episodes View (Hidden until a show is selected) -->
+      <div id="episodes-view" style="display: none">
+        <div id="select-show-drop-down">
+          <label for="select-show">Select show</label>
+          <select id="select-show" name="select-show">
+            <option value="" selected disabled>Choose a show</option>
+          </select>
+        </div>
+        <div id="search-controls">
+          <label for="search-input">Search episodes</label>
+          <input
+            id="search-input"
+            type="search"
+            placeholder="Search episodes"
+            name="search"
+          />
+          <p id="search-label" aria-live="polite">Displaying 73/73 episodes</p>
+        </div>
+        <div id="select-episode-drop-down">
+          <label for="select-episode">Select episode</label>
+          <select id="select-episode" name="select-episode">
+            <option value="" selected disabled>Choose an episode</option>
+            <option value="all-episodes">All episodes</option>
+          </select>
+        </div>
+        <div id="episodes-content"></div>
       </div>
     </div>
 

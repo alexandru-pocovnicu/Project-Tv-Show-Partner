@@ -91,10 +91,45 @@ async function displayShowsListing(showsToDisplay = null) {
     showsContent.appendChild(showCard);
   });
 
+  // Setup show search
+  setupShowsSearch(sortedShows);
+
   // Ensure shows listing view is visible
   if (showsListingView) {
     showsListingView.style.display = "block";
   }
+}
+
+function setupShowsSearch(allShows) {
+  const searchInput = document.getElementById("shows-search-input");
+  if (!searchInput) return;
+
+  searchInput.addEventListener("input", function () {
+    const searchTerm = searchInput.value.toLowerCase().trim();
+
+    if (!searchTerm) {
+      // If search is empty, display all shows
+      displayShowsListing(allShows);
+      return;
+    }
+
+    // Filter shows by name, genres, or summary
+    const filteredShows = allShows.filter((show) => {
+      const name = (show.name || "").toLowerCase();
+      const genres = show.genres
+        ? show.genres.map((g) => g.toLowerCase()).join(" ")
+        : "";
+      const summary = (show.summary || "").toLowerCase();
+
+      return (
+        name.includes(searchTerm) ||
+        genres.includes(searchTerm) ||
+        summary.includes(searchTerm)
+      );
+    });
+
+    displayShowsListing(filteredShows);
+  });
 }
 
 async function showEpisodes(showId) {
